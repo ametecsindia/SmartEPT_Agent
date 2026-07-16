@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';">
+<title>SmartEPT Agent</title>
+<style>
+  :root{
+    --canvas:#0A0D13; --card:#141A25; --card-2:#10151E; --border:#222B3A; --border-2:#2D384A;
+    --ink:#ECEFF5; --ink-2:#A6AEC0; --ink-3:#6F7889;
+    --accent:#827BF3; --accent-2:#968EFF; --accent-weak:rgba(130,123,243,.16);
+    --ok:#3DD68C; --warn:#EFB45F; --danger:#F2647F; --idle:#A78BFA;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:var(--canvas);color:var(--ink);
+    font-size:13px;height:100vh;overflow:hidden}
+  .wrap{height:100vh;display:flex;flex-direction:column}
+  .brand{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--border)}
+  .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff}
+  .brand h1{font-size:15px;font-weight:700}
+  .brand small{display:block;color:var(--ink-3);font-size:9px;font-weight:600;letter-spacing:1.6px}
+  .body{flex:1;overflow-y:auto;padding:18px}
+  .view{display:none} .view.active{display:block;animation:f .2s ease}
+  @keyframes f{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  label{display:block;font-size:11px;color:var(--ink-2);margin:12px 0 5px;font-weight:600}
+  input{width:100%;background:var(--card-2);border:1px solid var(--border-2);border-radius:8px;
+    padding:10px 12px;color:var(--ink);font-size:13px;font-family:inherit}
+  input:focus{outline:none;border-color:var(--accent)}
+  button{width:100%;margin-top:16px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    border:none;border-radius:8px;padding:11px;color:#fff;font-size:13px;font-weight:700;cursor:pointer}
+  button.ghost{background:var(--card);border:1px solid var(--border-2);color:var(--ink-2);margin-top:10px}
+  button:disabled{opacity:.55;cursor:default}
+  .err{color:var(--danger);font-size:12px;margin-top:12px;min-height:16px}
+  .muted{color:var(--ink-3);font-size:11px;line-height:1.5}
+  h2{font-size:16px;margin-bottom:6px}
+  .consent-list{margin:14px 0;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .consent-list .row{display:flex;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px}
+  .consent-list .row:last-child{border-bottom:none}
+  .tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px}
+  .on{background:rgba(61,214,140,.15);color:var(--ok)} .off{background:var(--card-2);color:var(--ink-3)}
+  .statuschip{display:inline-flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border-2);
+    border-radius:20px;padding:6px 13px;font-weight:700;font-size:12px}
+  .dot{width:8px;height:8px;border-radius:50%}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:12px}
+  .kpi .l{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px}
+  .kpi .v{font-size:21px;font-weight:800;margin-top:5px}
+  .flags{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+  .flag{font-size:10px;padding:4px 9px;border-radius:12px;background:var(--card-2);border:1px solid var(--border);color:var(--ink-2)}
+  .flag.active{border-color:var(--accent);color:var(--accent-2)}
+  .breaks{display:flex;gap:6px;margin-top:8px}
+  .breaks button{margin:0;flex:1;padding:8px;font-size:11px;background:var(--card);border:1px solid var(--border-2);color:var(--ink-2)}
+  .footline{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:11px;color:var(--ink-3)}
+  .who{font-size:12px;color:var(--ink-2);margin-bottom:2px}
+  .who b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="mark">EPT</div>
+    <div><h1>SmartEPT</h1><small>BY AMETECS</small></div>
+  </div>
+  <div class="body">
+
+    <!-- LOGIN -->
+    <div class="view active" id="view-login">
+      <h2>Sign in</h2>
+      <p class="muted">Connect this device to your company's SmartEPT server.</p>
+      <label>Server URL <span class="muted" id="server-hint"></span></label>
+      <input id="server" placeholder="https://ept.yourcompany.com">
+      <a href="#" id="btn-test" style="font-size:12px">Test connection</a>
+      <span class="muted" id="test-msg" style="font-size:12px"></span>
+      <label>Work email</label>
+      <input id="email" type="email" placeholder="you@company.com" autocomplete="username">
+      <label>Password</label>
+      <input id="password" type="password" autocomplete="current-password">
+      <button id="btn-login">Connect &amp; sign in</button>
+      <div class="err" id="login-err"></div>
+    </div>
+
+    <!-- CONSENT -->
+    <div class="view" id="view-consent">
+      <h2>Monitoring consent</h2>
+      <p class="muted">Your company uses SmartEPT to track work-session productivity under the
+      policy below. This app stays visible while it runs — nothing is hidden.</p>
+      <div class="consent-list" id="consent-list"></div>
+      <p class="muted">Data is stored on your company's server per its retention policy.</p>
+      <button id="btn-consent">I acknowledge &amp; start</button>
+      <div class="err" id="consent-err"></div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="view" id="view-dash">
+      <div class="who">Signed in as <b id="emp-name">—</b></div>
+      <span class="statuschip"><span class="dot" id="state-dot"></span><span id="state-label">—</span></span>
+
+      <div class="grid">
+        <div class="kpi"><div class="l">Logged in</div><div class="v" id="k-login">—</div></div>
+        <div class="kpi"><div class="l">Active</div><div class="v" id="k-active">0m</div></div>
+        <div class="kpi"><div class="l">Idle</div><div class="v" id="k-idle">0m</div></div>
+        <div class="kpi"><div class="l">Break</div><div class="v" id="k-break">0m</div></div>
+      </div>
+
+      <div class="flags" id="flags"></div>
+
+      <label>Breaks</label>
+      <div class="breaks">
+        <button data-b="TEA">Tea</button>
+        <button data-b="LUNCH">Lunch</button>
+        <button data-b="CUSTOM">Break</button>
+      </div>
+      <div class="breaks" style="margin-top:6px">
+        <button id="btn-break-end" class="ghost" style="margin:0">End current break</button>
+      </div>
+
+      <div class="footline">
+        <span id="sync-line">Sync: —</span>
+        <span id="policy-line"></span>
+      </div>
+      <button class="ghost" id="btn-logout">Sign out</button>
+    </div>
+
+  </div>
+</div>
+<script src="renderer.js"></script>
+</body>
+</html>

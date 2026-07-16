@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self';">
+<title>SmartEPT Presence</title>
+</head>
+<body>
+<!--
+  Hidden presence worker. Samples the webcam LOCALLY to decide a presence status and
+  reports only numbers (brightness, face count) to the main process. No video is recorded,
+  streamed, or uploaded. If face-api model files are added later, face count/away/multiple
+  detection can replace the brightness fallback without changing the reporting contract.
+-->
+<video id="v" autoplay muted playsinline width="320" height="240" style="display:none"></video>
+<canvas id="c" width="160" height="120" style="display:none"></canvas>
+<script src="presence.js"></script>
+</body>
+</html>

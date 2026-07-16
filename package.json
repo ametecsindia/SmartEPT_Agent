@@ -1,0 +1,38 @@
+{
+  "name": "smartept-agent",
+  "version": "0.3.0",
+  "description": "SmartEPT Employee Client \u2014 visible, consent-based productivity agent (M2 + R3-8 hardened: tray, autostart, single-instance, encrypted tokens)",
+  "author": "Ametecs",
+  "license": "proprietary",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.ametecs.smartept.agent",
+    "productName": "SmartEPT Agent",
+    "copyright": "Ametecs Pvt Ltd",
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SmartEPT Agent"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "preload-presence.js",
+      "src/**/*"
+    ]
+  }
+}
